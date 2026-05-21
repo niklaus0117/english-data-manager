@@ -1,0 +1,52 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: english-data-manager
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/english_data_manager?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: your_mysql_user
+    password: your_mysql_password
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      database: 0
+      timeout: 5s
+  kafka:
+    bootstrap-servers: 127.0.0.1:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+  servlet:
+    multipart:
+      max-file-size: 500MB
+      max-request-size: 500MB
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: auto
+
+app:
+  auth:
+    token-expire-seconds: 86400
+    password-salt: change-me
+  storage:
+    local-path: storage
+    public-prefix: /static/
+  kafka:
+    topic-video-changed: video-changed-topic
+  sms:
+    code-expire-seconds: 300
+    mock-enabled: true
+    mock-prefix: EDM
+
+logging:
+  level:
+    com.englishdatamanager.backend: info
