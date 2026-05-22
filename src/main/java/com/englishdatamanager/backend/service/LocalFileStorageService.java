@@ -20,10 +20,14 @@ public class LocalFileStorageService implements FileStorageService {
 
     private final AppProperties appProperties;
 
+    /**
+     * 存储上传文件并返回访问元数据。
+     */
     @Override
     public Map<String, Object> store(MultipartFile file) throws IOException {
         String originalFilename = file.getOriginalFilename();
         String extension = StringUtils.getFilenameExtension(originalFilename);
+        // 用随机文件名避免用户上传的原始文件名冲突或泄露本地路径信息。
         String fileName = UUID.randomUUID().toString().replace("-", "");
         if (extension != null && !extension.isBlank()) {
             fileName = fileName + "." + extension;
@@ -33,6 +37,7 @@ public class LocalFileStorageService implements FileStorageService {
         Path target = storagePath.resolve(fileName);
         file.transferTo(target);
 
+        // 返回前端可直接使用的公开 URL，同时保留文件大小和存储类型供后台展示。
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("fileName", fileName);
         result.put("url", appProperties.getStorage().getPublicPrefix() + fileName);

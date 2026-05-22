@@ -12,6 +12,9 @@ public class FavoriteRequest {
 
     private Long videoId;
 
+    /**
+     * 解析收藏请求中的目标 ID。
+     */
     public Long resolveTargetId() {
         return targetId != null ? targetId : videoId;
     }

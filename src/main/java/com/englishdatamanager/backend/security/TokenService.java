@@ -25,14 +25,19 @@ public class TokenService {
     private final AppProperties appProperties;
     private final ConcurrentMap<String, LocalToken> localTokenStore = new ConcurrentHashMap<>();
 
+    /**
+     * 为登录用户创建 token 并写入缓存。
+     */
     public String createToken(AuthUser authUser) {
         String token = UUID.randomUUID().toString().replace("-", "");
+        // payload 保持轻量，既能支撑鉴权，也避免每次请求都查询用户表。
         String payload = String.join("|",
                 authUser.getUserType(),
                 String.valueOf(authUser.getUserId()),
                 authUser.getDisplayName() == null ? "" : authUser.getDisplayName(),
                 String.valueOf(authUser.getStatus() == null ? 1 : authUser.getStatus()),
                 String.valueOf(authUser.getGroupId() == null ? 0L : authUser.getGroupId()));
+        // 先写本地缓存，再写 Redis；Redis 不可用时仍能支持本实例内的登录态。
         cacheTokenLocally(token, payload);
         try {
             stringRedisTemplate.opsForValue().set(
@@ -46,6 +51,9 @@ public class TokenService {
         return token;
     }
 
+    /**
+     * 根据 token 解析当前登录用户信息。
+     */
     public AuthUser parseToken(String token) {
         if (token == null || token.isBlank()) {
             return null;
@@ -57,6 +65,7 @@ public class TokenService {
             log.warn("redis unavailable when parsing token, fallback to local memory store: {}", exception.getMessage());
         }
         if (payload == null || payload.isBlank()) {
+            // Redis 读取失败或 token 不存在时，使用本地缓存兜底。
             payload = getLocalTokenPayload(token);
         }
         if (payload == null || payload.isBlank()) {
@@ -75,6 +84,9 @@ public class TokenService {
         );
     }
 
+    /**
+     * 移除 token 并使当前登录态失效。
+     */
     public void removeToken(String token) {
         if (token == null || token.isBlank()) {
             return;
@@ -87,6 +99,9 @@ public class TokenService {
         }
     }
 
+    /**
+     * 从 Authorization 请求头中提取实际 token。
+     */
     public String resolveToken(String authorization) {
         if (authorization == null || authorization.isBlank()) {
             return null;
@@ -94,17 +109,24 @@ public class TokenService {
         return authorization.startsWith("Bearer ") ? authorization.substring(7) : authorization;
     }
 
+    /**
+     * 将 token 负载写入本地内存兜底缓存。
+     */
     private void cacheTokenLocally(String token, String payload) {
         Instant expiresAt = Instant.now().plusSeconds(appProperties.getAuth().getTokenExpireSeconds());
         localTokenStore.put(token, new LocalToken(payload, expiresAt));
     }
 
+    /**
+     * 从本地兜底缓存读取未过期的 token 负载。
+     */
     private String getLocalTokenPayload(String token) {
         LocalToken localToken = localTokenStore.get(token);
         if (localToken == null) {
             return null;
         }
         if (localToken.expiresAt().isBefore(Instant.now())) {
+            // 惰性清理过期 token，避免本地兜底缓存长期增长。
             localTokenStore.remove(token, localToken);
             return null;
         }

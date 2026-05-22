@@ -22,6 +22,9 @@ public class AdminFileController {
 
     private final FileStorageService fileStorageService;
 
+    /**
+     * 上传文件并返回文件访问信息。
+     */
     @Operation(summary = "Upload file")
     @PostMapping("/upload")
     public ApiResponse<Map<String, Object>> upload(@RequestParam("file") MultipartFile file) throws IOException {

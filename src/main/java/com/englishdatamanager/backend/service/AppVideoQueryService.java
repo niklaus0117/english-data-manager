@@ -32,6 +32,9 @@ public class AppVideoQueryService {
     private final PlaybackRecordService playbackRecordService;
     private final AppUserService appUserService;
 
+    /**
+     * 查询 App 视频详情。
+     */
     public AppVideoDetailVo getVideoDetail(Long videoId) {
         Video video = videoService.getById(videoId);
         if (video == null) {
@@ -40,6 +43,7 @@ public class AppVideoQueryService {
 
         Long userId = UserContext.getUserId();
         AppUser appUser = userId == null ? null : appUserService.getById(userId);
+        // 视频详情对游客可见，用户态字段按登录状态补充，未登录时返回默认状态。
         PlaybackRecord playbackRecord = userId == null ? null : playbackRecordService.lambdaQuery()
                 .eq(PlaybackRecord::getUserId, userId)
                 .eq(PlaybackRecord::getVideoId, videoId)
@@ -71,6 +75,7 @@ public class AppVideoQueryService {
                 .list();
 
         boolean vipActive = isVipActive(appUser);
+        // 任一脚本片段锁定翻译时，非 VIP 用户不可查看中文翻译。
         boolean translationLocked = transcriptSegments.stream()
                 .anyMatch(segment -> segment.getIsTranslationLocked() != null && segment.getIsTranslationLocked() == 1)
                 && !vipActive;
@@ -89,6 +94,7 @@ public class AppVideoQueryService {
         AppVideoDetailVo result = new AppVideoDetailVo();
         result.setVideo(video);
         result.setPlayAsset(mediaAssets.stream()
+                // 默认媒体资源已经在查询中排在前面，这里取第一个 video 类型资源作为播放源。
                 .filter(asset -> "video".equalsIgnoreCase(asset.getAssetType()))
                 .findFirst()
                 .orElse(null));
@@ -102,12 +108,18 @@ public class AppVideoQueryService {
         return result;
     }
 
+    /**
+     * 判断用户 VIP 是否仍在有效期内。
+     */
     private boolean isVipActive(AppUser appUser) {
         return appUser != null
                 && appUser.getVipExpireAt() != null
                 && appUser.getVipExpireAt().isAfter(LocalDateTime.now());
     }
 
+    /**
+     * 根据视频配置和会员状态判断是否可下载。
+     */
     private boolean resolveCanDownload(Video video, boolean vipActive) {
         return video != null
                 && video.getAllowDownload() != null

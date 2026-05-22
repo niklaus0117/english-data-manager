@@ -22,16 +22,25 @@ public class ClientLessonController {
     private final AppCourseQueryService appCourseQueryService;
     private final AppVideoQueryService appVideoQueryService;
 
+    /**
+     * 查询数据详情。
+     */
     @GetMapping("/{id}")
     public ApiResponse<AppVideoDetailVo> detail(@PathVariable Long id) {
         return ApiResponse.success(appVideoQueryService.getVideoDetail(id));
     }
 
+    /**
+     * 查询章节播放器数据。
+     */
     @GetMapping("/{id}/player")
     public ApiResponse<AppLessonPlayerVo> player(@PathVariable Long id) {
         return ApiResponse.success(appCourseQueryService.lessonPlayerByLesson(id));
     }
 
+    /**
+     * 查询章节逐句脚本。
+     */
     @GetMapping("/{id}/transcripts")
     public ApiResponse<List<AppLessonSentenceVo>> transcripts(@PathVariable Long id) {
         return ApiResponse.success(appCourseQueryService.lessonTranscript(id));

@@ -7,5 +7,8 @@ import java.util.Map;
 
 public interface FileStorageService {
 
+    /**
+     * 存储上传文件并返回访问元数据。
+     */
     Map<String, Object> store(MultipartFile file) throws IOException;
 }

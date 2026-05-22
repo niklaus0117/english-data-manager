@@ -14,6 +14,9 @@ public class PasswordCodec {
 
     private final AppProperties appProperties;
 
+    /**
+     * 对原始密码进行编码。
+     */
     public String encode(String rawPassword) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -29,6 +32,9 @@ public class PasswordCodec {
         }
     }
 
+    /**
+     * 校验原始密码与已编码密码是否匹配。
+     */
     public boolean matches(String rawPassword, String encodedPassword) {
         return encode(rawPassword).equals(encodedPassword);
     }

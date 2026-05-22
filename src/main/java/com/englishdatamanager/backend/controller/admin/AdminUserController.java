@@ -15,6 +15,9 @@ public class AdminUserController {
 
     private final AppUserService appUserService;
 
+    /**
+     * 分页查询数据列表。
+     */
     @GetMapping
     public ApiResponse<PageResponse<AppUser>> page(
             @RequestParam(defaultValue = "1") long current,
@@ -30,11 +33,17 @@ public class AdminUserController {
         return ApiResponse.success(PageResponse.of(page));
     }
 
+    /**
+     * 查询数据详情。
+     */
     @GetMapping("/{id}")
     public ApiResponse<AppUser> detail(@PathVariable Long id) {
         return ApiResponse.success(appUserService.getById(id));
     }
 
+    /**
+     * 更新指定业务数据。
+     */
     @PutMapping("/{id}")
     public ApiResponse<Void> update(@PathVariable Long id, @RequestBody AppUser appUser) {
         appUser.setId(id);

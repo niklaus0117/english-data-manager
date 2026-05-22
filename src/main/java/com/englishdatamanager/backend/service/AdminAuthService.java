@@ -24,6 +24,9 @@ public class AdminAuthService {
     private final TokenService tokenService;
     private final AdminPermissionService adminPermissionService;
 
+    /**
+     * 处理登录请求并返回登录结果。
+     */
     public Map<String, Object> login(AdminLoginRequest request) {
         AdminUser adminUser = adminUserMapper.selectOne(
                 com.baomidou.mybatisplus.core.toolkit.Wrappers.<AdminUser>lambdaQuery()
@@ -54,10 +57,16 @@ public class AdminAuthService {
         return result;
     }
 
+    /**
+     * 处理退出登录请求。
+     */
     public void logout(String token) {
         tokenService.removeToken(token);
     }
 
+    /**
+     * 查询当前管理员资料和权限。
+     */
     public Map<String, Object> currentProfile(Long adminUserId) {
         AdminUser adminUser = adminUserMapper.selectById(adminUserId);
         List<String> roleCodes = adminPermissionService.getRolesByAdminUserId(adminUserId)

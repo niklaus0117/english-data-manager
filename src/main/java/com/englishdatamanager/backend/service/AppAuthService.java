@@ -27,6 +27,9 @@ public class AppAuthService {
     private final TokenService tokenService;
     private final SmsCodeService smsCodeService;
 
+    /**
+     * 处理登录请求并返回登录结果。
+     */
     public Map<String, Object> login(AppLoginRequest request) {
         AppUser appUser = appUserMapper.selectOne(
                 com.baomidou.mybatisplus.core.toolkit.Wrappers.<AppUser>lambdaQuery()
@@ -58,6 +61,9 @@ public class AppAuthService {
         return result;
     }
 
+    /**
+     * 处理 App 一键登录请求。
+     */
     public AppLoginVo quickLogin(QuickLoginRequest request) {
         String normalizedMobile = normalizeMobile(request.resolveMobile());
         AppUser appUser = appUserMapper.selectOne(
@@ -66,6 +72,7 @@ public class AppAuthService {
                         .last("limit 1")
         );
         if (appUser == null) {
+            // 一键登录首次进入时自动建档，默认放入普通用户权限组。
             appUser = new AppUser();
             appUser.setMobile(normalizedMobile);
             appUser.setPassword(passwordCodec.encode("user123456"));
@@ -104,10 +111,16 @@ public class AppAuthService {
         return result;
     }
 
+    /**
+     * 处理退出登录请求。
+     */
     public void logout(String token) {
         tokenService.removeToken(token);
     }
 
+    /**
+     * 使用短信验证码登录 App。
+     */
     public Map<String, Object> loginBySms(SmsLoginRequest request) {
         smsCodeService.verifyCode(request.getMobile(), request.getCode());
         AppUser appUser = appUserMapper.selectOne(
@@ -116,6 +129,7 @@ public class AppAuthService {
                         .last("limit 1")
         );
         if (appUser == null) {
+            // 短信登录同样支持自动注册，减少 App 首次使用的阻塞步骤。
             appUser = new AppUser();
             appUser.setMobile(request.getMobile());
             appUser.setPassword(passwordCodec.encode("user123456"));
@@ -150,17 +164,24 @@ public class AppAuthService {
         return result;
     }
 
+    /**
+     * 规范化手机号输入。
+     */
     private String normalizeMobile(String mobile) {
         if (mobile == null) {
             return null;
         }
         String trimmed = mobile.trim();
         if (trimmed.contains("*")) {
+            // 前端可能传入脱敏手机号，演示环境统一映射到固定测试账号。
             return "13800008888";
         }
         return trimmed;
     }
 
+    /**
+     * 对手机号进行脱敏展示。
+     */
     private String maskMobile(String mobile) {
         if (mobile == null || mobile.length() < 7) {
             return mobile;

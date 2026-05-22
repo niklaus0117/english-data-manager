@@ -27,11 +27,17 @@ public class ClientAuthController {
     private final SmsCodeService smsCodeService;
     private final AppUserService appUserService;
 
+    /**
+     * 发送短信验证码。
+     */
     @PostMapping("/send-code")
     public ApiResponse<Map<String, Object>> sendCode(@RequestBody ClientAuthRequest request) {
         return ApiResponse.success(smsCodeService.sendCode(request.resolveMobile()));
     }
 
+    /**
+     * 处理登录请求并返回登录结果。
+     */
     @PostMapping("/login")
     public ApiResponse<Map<String, Object>> login(@RequestBody ClientAuthRequest request) {
         if (request.getCode() != null && !request.getCode().isBlank()) {
@@ -47,11 +53,17 @@ public class ClientAuthController {
         return ApiResponse.success(appAuthService.login(loginRequest));
     }
 
+    /**
+     * 查询当前登录用户信息。
+     */
     @GetMapping("/me")
     public ApiResponse<AppUserVo> me() {
         return ApiResponse.success(appUserService.currentUserCard());
     }
 
+    /**
+     * 处理退出登录请求。
+     */
     @PostMapping("/logout")
     public ApiResponse<Void> logout(HttpServletRequest request) {
         Object currentToken = request.getAttribute("currentToken");

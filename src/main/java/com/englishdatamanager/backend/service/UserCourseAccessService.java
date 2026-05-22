@@ -16,6 +16,9 @@ public class UserCourseAccessService extends ServiceImpl<UserCourseAccessMapper,
 
     private final AppUserService appUserService;
 
+    /**
+     * 判断用户是否拥有课程访问权限。
+     */
     public boolean hasAccess(Long userId, VideoAlbum album) {
         if (album == null) {
             return false;
@@ -36,6 +39,9 @@ public class UserCourseAccessService extends ServiceImpl<UserCourseAccessMapper,
         return false;
     }
 
+    /**
+     * 判断用户是否已有有效课程访问记录。
+     */
     public boolean existsActiveAccess(Long userId, Long courseId) {
         return lambdaQuery()
                 .eq(UserCourseAccess::getUserId, userId)
@@ -47,6 +53,9 @@ public class UserCourseAccessService extends ServiceImpl<UserCourseAccessMapper,
                 .exists();
     }
 
+    /**
+     * 为用户授予课程访问权限。
+     */
     public void grantAccess(Long userId, Long courseId, String sourceType) {
         if (existsActiveAccess(userId, courseId)) {
             return;

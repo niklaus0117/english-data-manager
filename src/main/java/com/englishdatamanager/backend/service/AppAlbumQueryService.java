@@ -34,6 +34,9 @@ public class AppAlbumQueryService {
     private final VideoSubtitleTrackService videoSubtitleTrackService;
     private final UserFavoriteService userFavoriteService;
 
+    /**
+     * 按分类查询课程专辑聚合数据。
+     */
     public AppAlbumListVo getAlbumsByCategory(Long categoryId) {
         Category category = categoryService.getById(categoryId);
         if (category == null) {
@@ -56,6 +59,9 @@ public class AppAlbumQueryService {
         return result;
     }
 
+    /**
+     * 查询课程专辑详情聚合数据。
+     */
     public AppAlbumDetailVo getAlbumDetail(Long albumId) {
         VideoAlbum album = videoAlbumService.getById(albumId);
         if (album == null) {
@@ -103,6 +109,9 @@ public class AppAlbumQueryService {
         return result;
     }
 
+    /**
+     * 加载当前用户指定类型的收藏 ID 集合。
+     */
     private Set<Long> loadFavoriteIds(String targetType) {
         Long userId = UserContext.getUserId();
         if (userId == null) {
@@ -111,6 +120,9 @@ public class AppAlbumQueryService {
         return userFavoriteService.listTargetIds(userId, targetType).stream().collect(Collectors.toSet());
     }
 
+    /**
+     * 查找当前用户最近一次可继续播放的记录。
+     */
     private PlaybackRecord findContinuePlayback(List<Long> videoIds) {
         Long userId = UserContext.getUserId();
         if (userId == null || videoIds.isEmpty()) {
@@ -124,6 +136,9 @@ public class AppAlbumQueryService {
                 .one();
     }
 
+    /**
+     * 将课程专辑转换为卡片展示对象。
+     */
     private VideoAlbumCardVo toAlbumCardVo(VideoAlbum album, boolean favorited) {
         VideoAlbumCardVo vo = new VideoAlbumCardVo();
         vo.setAlbum(album);
@@ -131,6 +146,9 @@ public class AppAlbumQueryService {
         return vo;
     }
 
+    /**
+     * 执行 toAlbumVideoItemVo 业务逻辑。
+     */
     private AlbumVideoItemVo toAlbumVideoItemVo(VideoAlbumItem item,
                                                 Video video,
                                                 Map<Long, Boolean> translationReadyMap,

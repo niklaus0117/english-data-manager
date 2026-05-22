@@ -25,6 +25,9 @@ public class AppOrderController {
     private final MembershipPackageService membershipPackageService;
     private final UserOrderService userOrderService;
 
+    /**
+     * 查询可购买的会员套餐列表。
+     */
     @Operation(summary = "Membership package list")
     @GetMapping("/packages")
     public ApiResponse<List<MembershipPackage>> packages() {
@@ -35,12 +38,18 @@ public class AppOrderController {
                 .list());
     }
 
+    /**
+     * 创建一条业务数据。
+     */
     @Operation(summary = "Create membership order")
     @PostMapping
     public ApiResponse<Map<String, Object>> create(@Valid @RequestBody CreateOrderRequest request) {
         return ApiResponse.success(userOrderService.createMembershipOrder(UserContext.getUserId(), request.getPackageId()));
     }
 
+    /**
+     * 查询当前用户订单列表。
+     */
     @Operation(summary = "My order list")
     @GetMapping
     public ApiResponse<List<UserOrder>> myOrders() {
@@ -50,6 +59,9 @@ public class AppOrderController {
                 .list());
     }
 
+    /**
+     * 查询数据详情。
+     */
     @Operation(summary = "My order detail")
     @GetMapping("/{id}")
     public ApiResponse<UserOrder> detail(@PathVariable Long id) {

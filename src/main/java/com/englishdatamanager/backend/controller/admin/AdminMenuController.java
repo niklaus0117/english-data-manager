@@ -22,6 +22,9 @@ public class AdminMenuController {
     private final AdminRoleMenuService adminRoleMenuService;
     private final AdminPermissionService adminPermissionService;
 
+    /**
+     * 查询数据列表。
+     */
     @Operation(summary = "Menu list")
     @GetMapping
     public ApiResponse<List<AdminMenu>> list() {
@@ -31,12 +34,18 @@ public class AdminMenuController {
                 .list());
     }
 
+    /**
+     * 查询树形结构数据。
+     */
     @Operation(summary = "Menu tree")
     @GetMapping("/tree")
     public ApiResponse<?> tree() {
         return ApiResponse.success(adminPermissionService.getAllMenuTree());
     }
 
+    /**
+     * 创建一条业务数据。
+     */
     @Operation(summary = "Create menu")
     @PostMapping
     public ApiResponse<Void> create(@RequestBody AdminMenu menu) {
@@ -44,6 +53,9 @@ public class AdminMenuController {
         return ApiResponse.success();
     }
 
+    /**
+     * 更新指定业务数据。
+     */
     @Operation(summary = "Update menu")
     @PutMapping("/{id}")
     public ApiResponse<Void> update(@PathVariable Long id, @RequestBody AdminMenu menu) {
@@ -52,6 +64,9 @@ public class AdminMenuController {
         return ApiResponse.success();
     }
 
+    /**
+     * 删除指定业务数据。
+     */
     @Operation(summary = "Delete menu")
     @DeleteMapping("/{id}")
     public ApiResponse<Void> delete(@PathVariable Long id) {

@@ -11,6 +11,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OpenApiConfig {
 
+    /**
+     * 配置 Swagger OpenAPI 文档信息。
+     */
     @Bean
     public OpenAPI openAPI() {
         final String securityName = "BearerAuth";

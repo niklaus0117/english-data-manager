@@ -30,6 +30,9 @@ public class UserProgressRequest {
 
     private String deviceId;
 
+    /**
+     * 解析学习进度是否完成。
+     */
     public Integer resolveFinished() {
         if (finished != null) {
             return finished;

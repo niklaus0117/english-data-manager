@@ -48,11 +48,17 @@ public class AppUserController {
     private final PlaybackRecordService playbackRecordService;
     private final UserDownloadRecordService userDownloadRecordService;
 
+    /**
+     * 查询当前用户资料。
+     */
     @GetMapping("/profile")
     public ApiResponse<AppUser> profile() {
         return ApiResponse.success(appUserService.getById(UserContext.getUserId()));
     }
 
+    /**
+     * 查询当前用户资料卡片。
+     */
     @GetMapping("/profile-card")
     public ApiResponse<AppUserVo> profileCard() {
         AppUser user = appUserService.getById(UserContext.getUserId());
@@ -67,6 +73,9 @@ public class AppUserController {
         return ApiResponse.success(vo);
     }
 
+    /**
+     * 查询当前用户权限分组信息。
+     */
     @GetMapping("/group")
     public ApiResponse<Map<String, Object>> group() {
         AppUser appUser = appUserService.getById(UserContext.getUserId());
@@ -85,6 +94,9 @@ public class AppUserController {
         return ApiResponse.success(result);
     }
 
+    /**
+     * 查询当前用户收藏的视频列表。
+     */
     @GetMapping("/favorites")
     public ApiResponse<List<Video>> favorites() {
         List<Long> videoIds = userFavoriteService.listTargetIds(UserContext.getUserId(), UserFavoriteService.TARGET_TYPE_VIDEO);
@@ -94,6 +106,9 @@ public class AppUserController {
         return ApiResponse.success(videoService.listByIds(videoIds));
     }
 
+    /**
+     * 查询当前用户收藏的课程列表。
+     */
     @GetMapping("/favorite-albums")
     public ApiResponse<List<VideoAlbum>> favoriteAlbums() {
         List<Long> albumIds = userFavoriteService.listTargetIds(UserContext.getUserId(), UserFavoriteService.TARGET_TYPE_ALBUM);
@@ -103,6 +118,9 @@ public class AppUserController {
         return ApiResponse.success(videoAlbumService.listByIds(albumIds));
     }
 
+    /**
+     * 查询当前用户书架数据。
+     */
     @GetMapping("/bookshelf")
     public ApiResponse<List<AppLessonVo>> bookshelf() {
         List<Long> lessonIds = userFavoriteService.listTargetIds(UserContext.getUserId(), UserFavoriteService.TARGET_TYPE_VIDEO);
@@ -135,6 +153,9 @@ public class AppUserController {
         }).toList());
     }
 
+    /**
+     * 查询当前用户缓存列表。
+     */
     @GetMapping("/cache")
     public ApiResponse<List<AppLessonVo>> cacheList() {
         List<com.englishdatamanager.backend.entity.UserDownloadRecord> downloads = userDownloadRecordService.lambdaQuery()
@@ -164,6 +185,9 @@ public class AppUserController {
         }).filter(java.util.Objects::nonNull).toList());
     }
 
+    /**
+     * 新增当前用户收藏记录。
+     */
     @PostMapping("/favorites")
     public ApiResponse<Void> addFavorite(@Valid @RequestBody FavoriteRequest request) {
         Long targetId = request.resolveTargetId();
@@ -174,18 +198,27 @@ public class AppUserController {
         return ApiResponse.success();
     }
 
+    /**
+     * 删除当前用户收藏记录。
+     */
     @DeleteMapping("/favorites")
     public ApiResponse<Void> deleteFavorite(@RequestParam String targetType, @RequestParam Long targetId) {
         userFavoriteService.removeFavorite(UserContext.getUserId(), targetType, targetId);
         return ApiResponse.success();
     }
 
+    /**
+     * 删除当前用户收藏记录。
+     */
     @DeleteMapping("/favorites/{videoId}")
     public ApiResponse<Void> deleteFavorite(@PathVariable Long videoId) {
         userFavoriteService.removeFavorite(UserContext.getUserId(), UserFavoriteService.TARGET_TYPE_VIDEO, videoId);
         return ApiResponse.success();
     }
 
+    /**
+     * 查询当前用户播放记录。
+     */
     @GetMapping("/playbacks")
     public ApiResponse<List<PlaybackRecord>> playbacks() {
         return ApiResponse.success(playbackRecordService.lambdaQuery()
@@ -195,6 +228,9 @@ public class AppUserController {
                 .list());
     }
 
+    /**
+     * 新增或更新当前用户播放记录。
+     */
     @PostMapping("/playbacks")
     public ApiResponse<Void> addPlayback(@Valid @RequestBody PlaybackRequest request) {
         playbackRecordService.saveOrUpdateRecord(
@@ -211,6 +247,9 @@ public class AppUserController {
         return ApiResponse.success();
     }
 
+    /**
+     * 将秒数格式化为分钟和秒。
+     */
     private String formatDuration(Integer durationSeconds) {
         if (durationSeconds == null || durationSeconds <= 0) {
             return null;
@@ -220,6 +259,9 @@ public class AppUserController {
         return String.format("%02d:%02d", minutes, seconds);
     }
 
+    /**
+     * 对手机号进行脱敏展示。
+     */
     private String maskMobile(String mobile) {
         if (mobile == null || mobile.length() < 7) {
             return mobile;

@@ -21,6 +21,9 @@ public class AppUserService extends ServiceImpl<AppUserMapper, AppUser> {
 
     private final PermissionGroupService permissionGroupService;
 
+    /**
+     * 查询当前 App 用户卡片信息。
+     */
     public AppUserVo currentUserCard() {
         AppUser user = getCurrentActiveUser();
         AppUserVo vo = new AppUserVo();
@@ -31,6 +34,9 @@ public class AppUserService extends ServiceImpl<AppUserMapper, AppUser> {
         return vo;
     }
 
+    /**
+     * 查询当前 App 用户权限组。
+     */
     public Map<String, Object> currentUserGroup() {
         AppUser user = getCurrentActiveUser();
         PermissionGroup group = permissionGroupService.getById(user.getPermissionGroupId());
@@ -45,6 +51,9 @@ public class AppUserService extends ServiceImpl<AppUserMapper, AppUser> {
         return result;
     }
 
+    /**
+     * 查询当前可用 App 用户。
+     */
     public AppUser getCurrentActiveUser() {
         Long userId = UserContext.getUserId();
         if (userId == null) {
@@ -60,6 +69,9 @@ public class AppUserService extends ServiceImpl<AppUserMapper, AppUser> {
         return user;
     }
 
+    /**
+     * 对手机号进行脱敏展示。
+     */
     private String maskMobile(String mobile) {
         if (mobile == null || mobile.length() < 7) {
             return mobile;

@@ -10,6 +10,9 @@ import java.time.LocalDateTime;
 @Service
 public class UserDownloadRecordService extends ServiceImpl<UserDownloadRecordMapper, UserDownloadRecord> {
 
+    /**
+     * 记录用户已下载的视频资源。
+     */
     public void markDownloaded(Long userId, Long videoId, String downloadUrl, Long fileSizeBytes) {
         UserDownloadRecord record = lambdaQuery()
                 .eq(UserDownloadRecord::getUserId, userId)

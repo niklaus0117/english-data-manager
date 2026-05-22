@@ -20,6 +20,9 @@ public class OpenPaymentController {
 
     private final UserOrderService userOrderService;
 
+    /**
+     * 处理第三方支付回调。
+     */
     @Operation(summary = "Payment callback")
     @PostMapping("/callback")
     public ApiResponse<Void> callback(@Valid @RequestBody PaymentCallbackRequest request) {

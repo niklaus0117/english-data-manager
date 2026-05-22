@@ -26,6 +26,9 @@ public class AdminAlbumController {
     private final VideoAlbumService videoAlbumService;
     private final VideoAlbumItemService videoAlbumItemService;
 
+    /**
+     * 查询数据列表。
+     */
     @GetMapping
     public ApiResponse<List<VideoAlbum>> list(@RequestParam(required = false) Long categoryId,
                                               @RequestParam(required = false) Integer status) {
@@ -38,17 +41,26 @@ public class AdminAlbumController {
                 .list());
     }
 
+    /**
+     * 查询数据详情。
+     */
     @GetMapping("/{id}")
     public ApiResponse<VideoAlbum> detail(@PathVariable Long id) {
         return ApiResponse.success(videoAlbumService.getById(id));
     }
 
+    /**
+     * 创建一条业务数据。
+     */
     @PostMapping
     public ApiResponse<Void> create(@RequestBody VideoAlbum album) {
         videoAlbumService.save(album);
         return ApiResponse.success();
     }
 
+    /**
+     * 更新指定业务数据。
+     */
     @PutMapping("/{id}")
     public ApiResponse<Void> update(@PathVariable Long id, @RequestBody VideoAlbum album) {
         album.setId(id);
@@ -56,6 +68,9 @@ public class AdminAlbumController {
         return ApiResponse.success();
     }
 
+    /**
+     * 删除指定业务数据。
+     */
     @DeleteMapping("/{id}")
     public ApiResponse<Void> delete(@PathVariable Long id) {
         videoAlbumService.removeById(id);
@@ -65,6 +80,9 @@ public class AdminAlbumController {
         return ApiResponse.success();
     }
 
+    /**
+     * 查询专辑下的视频条目列表。
+     */
     @GetMapping("/{albumId}/items")
     public ApiResponse<List<VideoAlbumItem>> itemList(@PathVariable Long albumId) {
         return ApiResponse.success(videoAlbumItemService.lambdaQuery()
@@ -74,6 +92,9 @@ public class AdminAlbumController {
                 .list());
     }
 
+    /**
+     * 创建专辑视频条目。
+     */
     @PostMapping("/{albumId}/items")
     public ApiResponse<Void> createItem(@PathVariable Long albumId, @RequestBody VideoAlbumItem item) {
         item.setAlbumId(albumId);
@@ -81,6 +102,9 @@ public class AdminAlbumController {
         return ApiResponse.success();
     }
 
+    /**
+     * 更新专辑视频条目。
+     */
     @PutMapping("/items/{id}")
     public ApiResponse<Void> updateItem(@PathVariable Long id, @RequestBody VideoAlbumItem item) {
         item.setId(id);
@@ -88,6 +112,9 @@ public class AdminAlbumController {
         return ApiResponse.success();
     }
 
+    /**
+     * 删除专辑视频条目。
+     */
     @DeleteMapping("/items/{id}")
     public ApiResponse<Void> deleteItem(@PathVariable Long id) {
         videoAlbumItemService.removeById(id);

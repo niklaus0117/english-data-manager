@@ -21,6 +21,9 @@ public class KafkaEventService {
     private final ObjectMapper objectMapper;
     private final AppProperties appProperties;
 
+    /**
+     * 发布视频变更事件。
+     */
     public void publishVideoChanged(Long videoId, String action) {
         Map<String, Object> event = new LinkedHashMap<>();
         event.put("videoId", videoId);

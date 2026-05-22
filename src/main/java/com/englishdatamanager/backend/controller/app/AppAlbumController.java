@@ -17,11 +17,17 @@ public class AppAlbumController {
 
     private final AppAlbumQueryService appAlbumQueryService;
 
+    /**
+     * 按分类查询课程专辑列表。
+     */
     @GetMapping("/categories/{categoryId}/albums")
     public ApiResponse<AppAlbumListVo> albumsByCategory(@PathVariable Long categoryId) {
         return ApiResponse.success(appAlbumQueryService.getAlbumsByCategory(categoryId));
     }
 
+    /**
+     * 查询课程专辑详情。
+     */
     @GetMapping("/albums/{albumId}")
     public ApiResponse<AppAlbumDetailVo> albumDetail(@PathVariable Long albumId) {
         return ApiResponse.success(appAlbumQueryService.getAlbumDetail(albumId));

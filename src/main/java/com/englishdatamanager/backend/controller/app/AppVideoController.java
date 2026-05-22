@@ -22,6 +22,9 @@ public class AppVideoController {
     private final VideoService videoService;
     private final AppVideoQueryService appVideoQueryService;
 
+    /**
+     * 分页查询数据列表。
+     */
     @GetMapping
     public ApiResponse<PageResponse<Video>> page(
             @RequestParam(defaultValue = "1") long current,
@@ -39,6 +42,9 @@ public class AppVideoController {
         return ApiResponse.success(PageResponse.of(page));
     }
 
+    /**
+     * 查询数据详情。
+     */
     @GetMapping("/{id}")
     public ApiResponse<AppVideoDetailVo> detail(@PathVariable Long id) {
         return ApiResponse.success(appVideoQueryService.getVideoDetail(id));

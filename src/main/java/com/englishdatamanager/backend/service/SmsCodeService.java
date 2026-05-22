@@ -20,6 +20,9 @@ public class SmsCodeService {
     private final StringRedisTemplate stringRedisTemplate;
     private final AppProperties appProperties;
 
+    /**
+     * 发送短信验证码。
+     */
     public Map<String, Object> sendCode(String mobile) {
         String code = generateCode();
         stringRedisTemplate.opsForValue().set(
@@ -37,6 +40,9 @@ public class SmsCodeService {
         return result;
     }
 
+    /**
+     * 校验短信验证码是否正确。
+     */
     public void verifyCode(String mobile, String code) {
         String cachedCode = stringRedisTemplate.opsForValue().get(SMS_CODE_PREFIX + mobile);
         if (cachedCode == null || !cachedCode.equals(code)) {
@@ -45,6 +51,9 @@ public class SmsCodeService {
         stringRedisTemplate.delete(SMS_CODE_PREFIX + mobile);
     }
 
+    /**
+     * 生成短信验证码。
+     */
     private String generateCode() {
         int random = ThreadLocalRandom.current().nextInt(100000, 999999);
         if (!appProperties.getSms().isMockEnabled()) {

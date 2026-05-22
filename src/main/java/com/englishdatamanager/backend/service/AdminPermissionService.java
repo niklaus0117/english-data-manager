@@ -23,6 +23,9 @@ public class AdminPermissionService {
     private final AdminRoleMenuService adminRoleMenuService;
     private final AdminMenuService adminMenuService;
 
+    /**
+     * 查询管理员拥有的角色列表。
+     */
     public List<AdminRole> getRolesByAdminUserId(Long adminUserId) {
         List<Long> roleIds = adminUserRoleService.lambdaQuery()
                 .eq(AdminUserRole::getAdminUserId, adminUserId)
@@ -41,6 +44,9 @@ public class AdminPermissionService {
                 .list();
     }
 
+    /**
+     * 查询管理员可访问的菜单列表。
+     */
     public List<AdminMenu> getMenusByAdminUserId(Long adminUserId) {
         List<AdminRole> roles = getRolesByAdminUserId(adminUserId);
         if (roles.isEmpty()) {
@@ -64,10 +70,16 @@ public class AdminPermissionService {
                 .list();
     }
 
+    /**
+     * 查询管理员可访问的菜单树。
+     */
     public List<AdminMenuTreeVo> getMenuTreeByAdminUserId(Long adminUserId) {
         return buildTree(getMenusByAdminUserId(adminUserId));
     }
 
+    /**
+     * 查询完整后台菜单树。
+     */
     public List<AdminMenuTreeVo> getAllMenuTree() {
         List<AdminMenu> menus = adminMenuService.lambdaQuery()
                 .orderByAsc(AdminMenu::getSortNo)
@@ -76,8 +88,12 @@ public class AdminPermissionService {
         return buildTree(menus);
     }
 
+    /**
+     * 将菜单列表组装为树形结构。
+     */
     private List<AdminMenuTreeVo> buildTree(List<AdminMenu> menus) {
         Map<Long, AdminMenuTreeVo> index = new LinkedHashMap<>();
+        // 先建立 ID 索引，后续挂载子节点时可以 O(1) 找到父菜单。
         for (AdminMenu menu : menus) {
             AdminMenuTreeVo vo = new AdminMenuTreeVo();
             vo.setId(menu.getId());
@@ -99,6 +115,7 @@ public class AdminPermissionService {
             }
             AdminMenuTreeVo parent = index.get(item.getParentId());
             if (parent == null) {
+                // 父菜单缺失时提升为根节点，避免菜单因为脏数据在前端不可见。
                 roots.add(item);
             } else {
                 parent.getChildren().add(item);

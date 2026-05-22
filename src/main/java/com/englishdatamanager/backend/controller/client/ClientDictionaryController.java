@@ -16,6 +16,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ClientDictionaryController {
 
+    /**
+     * 查询单词释义和示例信息。
+     */
     @GetMapping("/word")
     public ApiResponse<Map<String, Object>> word(@RequestParam("q") String word) {
         Map<String, Object> result = new LinkedHashMap<>();

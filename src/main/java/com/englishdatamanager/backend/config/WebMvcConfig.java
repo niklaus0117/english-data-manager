@@ -14,6 +14,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
     private final AuthInterceptor authInterceptor;
     private final AppProperties appProperties;
 
+    /**
+     * 注册全局认证拦截器。
+     */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(authInterceptor)
@@ -32,6 +35,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 );
     }
 
+    /**
+     * 注册本地静态文件访问映射。
+     */
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         String path = "file:" + appProperties.getStorage().getLocalPath() + "/";

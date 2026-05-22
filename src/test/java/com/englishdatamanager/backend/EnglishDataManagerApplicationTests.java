@@ -6,6 +6,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class EnglishDataManagerApplicationTests {
 
+    /**
+     * 验证 Spring 应用上下文可以正常启动。
+     */
     @Test
     void contextLoads() {
     }

@@ -30,12 +30,18 @@ public class AdminRoleController {
     private final AdminRoleMenuService adminRoleMenuService;
     private final AdminPermissionService adminPermissionService;
 
+    /**
+     * 查询数据列表。
+     */
     @Operation(summary = "Role list")
     @GetMapping
     public ApiResponse<List<AdminRole>> list() {
         return ApiResponse.success(adminRoleService.lambdaQuery().orderByDesc(AdminRole::getId).list());
     }
 
+    /**
+     * 创建一条业务数据。
+     */
     @Operation(summary = "Create role")
     @PostMapping
     public ApiResponse<Void> create(@RequestBody AdminRole role) {
@@ -43,6 +49,9 @@ public class AdminRoleController {
         return ApiResponse.success();
     }
 
+    /**
+     * 更新指定业务数据。
+     */
     @Operation(summary = "Update role")
     @PutMapping("/{id}")
     public ApiResponse<Void> update(@PathVariable Long id, @RequestBody AdminRole role) {
@@ -51,6 +60,9 @@ public class AdminRoleController {
         return ApiResponse.success();
     }
 
+    /**
+     * 删除指定业务数据。
+     */
     @Operation(summary = "Delete role")
     @DeleteMapping("/{id}")
     public ApiResponse<Void> delete(@PathVariable Long id) {
@@ -60,6 +72,9 @@ public class AdminRoleController {
         return ApiResponse.success();
     }
 
+    /**
+     * 处理 assignUsers 接口请求。
+     */
     @Operation(summary = "Assign roles to admin user")
     @PostMapping("/assign-users")
     public ApiResponse<Void> assignUsers(@RequestBody AdminAssignRolesRequest request) {
@@ -77,6 +92,9 @@ public class AdminRoleController {
         return ApiResponse.success();
     }
 
+    /**
+     * 处理 assignMenus 接口请求。
+     */
     @Operation(summary = "Assign menus to role")
     @PostMapping("/assign-menus")
     public ApiResponse<Void> assignMenus(@RequestBody RoleMenuAssignRequest request) {
@@ -94,6 +112,9 @@ public class AdminRoleController {
         return ApiResponse.success();
     }
 
+    /**
+     * 处理 permissions 接口请求。
+     */
     @Operation(summary = "Role permission detail")
     @GetMapping("/{id}/permissions")
     public ApiResponse<Map<String, Object>> permissions(@PathVariable Long id) {

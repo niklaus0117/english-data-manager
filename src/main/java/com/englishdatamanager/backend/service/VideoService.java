@@ -12,6 +12,9 @@ public class VideoService extends ServiceImpl<VideoMapper, Video> {
 
     private final KafkaEventService kafkaEventService;
 
+    /**
+     * 创建视频并发布视频变更事件。
+     */
     public boolean createVideo(Video video) {
         boolean success = this.save(video);
         if (success) {
@@ -20,6 +23,9 @@ public class VideoService extends ServiceImpl<VideoMapper, Video> {
         return success;
     }
 
+    /**
+     * 更新视频并发布视频变更事件。
+     */
     public boolean updateVideo(Video video) {
         boolean success = this.updateById(video);
         if (success) {

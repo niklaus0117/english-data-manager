@@ -23,6 +23,9 @@ public class AdminDashboardController {
     private final AppUserService appUserService;
     private final UserOrderService userOrderService;
 
+    /**
+     * 查询后台首页概览数据。
+     */
     @GetMapping("/overview")
     public ApiResponse<Map<String, Object>> overview() {
         Map<String, Object> result = new LinkedHashMap<>();

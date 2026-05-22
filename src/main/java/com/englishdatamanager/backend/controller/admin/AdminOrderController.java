@@ -15,6 +15,9 @@ public class AdminOrderController {
 
     private final UserOrderService userOrderService;
 
+    /**
+     * 分页查询数据列表。
+     */
     @GetMapping
     public ApiResponse<PageResponse<UserOrder>> page(
             @RequestParam(defaultValue = "1") long current,
@@ -29,11 +32,17 @@ public class AdminOrderController {
         return ApiResponse.success(PageResponse.of(page));
     }
 
+    /**
+     * 查询数据详情。
+     */
     @GetMapping("/{id}")
     public ApiResponse<UserOrder> detail(@PathVariable Long id) {
         return ApiResponse.success(userOrderService.getById(id));
     }
 
+    /**
+     * 更新指定业务数据。
+     */
     @PutMapping("/{id}")
     public ApiResponse<Void> update(@PathVariable Long id, @RequestBody UserOrder order) {
         order.setId(id);

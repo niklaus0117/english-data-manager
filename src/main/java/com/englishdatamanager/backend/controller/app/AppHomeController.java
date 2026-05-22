@@ -17,6 +17,9 @@ public class AppHomeController {
 
     private final AppCourseQueryService appCourseQueryService;
 
+    /**
+     * 处理 index 接口请求。
+     */
     @GetMapping("/index")
     public ApiResponse<Map<String, Object>> index() {
         Map<String, Object> result = new LinkedHashMap<>();

@@ -15,6 +15,9 @@ public class ClientAuthRequest {
 
     private String nickname;
 
+    /**
+     * 解析请求中的手机号字段。
+     */
     public String resolveMobile() {
         return mobile == null ? null : mobile.trim();
     }

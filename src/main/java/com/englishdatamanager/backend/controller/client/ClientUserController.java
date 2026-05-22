@@ -43,16 +43,25 @@ public class ClientUserController {
     private final UserVocabularyService userVocabularyService;
     private final VideoService videoService;
 
+    /**
+     * 查询当前用户资料。
+     */
     @GetMapping("/profile")
     public ApiResponse<AppUserVo> profile() {
         return ApiResponse.success(appUserService.currentUserCard());
     }
 
+    /**
+     * 查询当前用户权限分组信息。
+     */
     @GetMapping("/group")
     public ApiResponse<Object> group() {
         return ApiResponse.success(appUserService.currentUserGroup());
     }
 
+    /**
+     * 保存用户学习进度。
+     */
     @PostMapping("/progress")
     public ApiResponse<Void> progress(@Valid @RequestBody UserProgressRequest request) {
         playbackRecordService.saveOrUpdateRecord(
@@ -68,6 +77,9 @@ public class ClientUserController {
         return ApiResponse.success();
     }
 
+    /**
+     * 查询当前用户播放记录。
+     */
     @GetMapping("/playbacks")
     public ApiResponse<List<PlaybackRecord>> playbacks() {
         return ApiResponse.success(playbackRecordService.lambdaQuery()
@@ -77,6 +89,9 @@ public class ClientUserController {
                 .list());
     }
 
+    /**
+     * 处理 notes 接口请求。
+     */
     @GetMapping("/notes")
     public ApiResponse<List<UserNote>> notes(@RequestParam(required = false) Long lessonId,
                                              @RequestParam(required = false) Long videoId) {
@@ -88,6 +103,9 @@ public class ClientUserController {
                 .list());
     }
 
+    /**
+     * 保存用户学习笔记。
+     */
     @PostMapping("/notes")
     public ApiResponse<UserNote> saveNote(@Valid @RequestBody UserNoteRequest request) {
         if (request.getVideoId() == null) {
@@ -107,6 +125,9 @@ public class ClientUserController {
         return ApiResponse.success(note);
     }
 
+    /**
+     * 保存用户生词记录。
+     */
     @PostMapping("/vocabulary")
     public ApiResponse<UserVocabulary> vocabulary(@Valid @RequestBody VocabularyRequest request) {
         String word = request.getWord().trim();
@@ -127,6 +148,9 @@ public class ClientUserController {
         return ApiResponse.success(vocabulary);
     }
 
+    /**
+     * 查询用户生词列表。
+     */
     @GetMapping("/vocabulary")
     public ApiResponse<List<UserVocabulary>> vocabularyList() {
         return ApiResponse.success(userVocabularyService.lambdaQuery()
@@ -135,6 +159,9 @@ public class ClientUserController {
                 .list());
     }
 
+    /**
+     * 查询用户收藏章节列表。
+     */
     @GetMapping("/collections")
     public ApiResponse<List<AppLessonVo>> collections() {
         List<Long> videoIds = userFavoriteService.listTargetIds(requireUserId(), UserFavoriteService.TARGET_TYPE_VIDEO);
@@ -144,6 +171,9 @@ public class ClientUserController {
         return ApiResponse.success(videoService.listByIds(videoIds).stream().map(this::toLessonVo).toList());
     }
 
+    /**
+     * 新增用户收藏章节。
+     */
     @PostMapping("/collections")
     public ApiResponse<Void> addCollection(@Valid @RequestBody FavoriteRequest request) {
         Long targetId = request.resolveTargetId();
@@ -154,6 +184,9 @@ public class ClientUserController {
         return ApiResponse.success();
     }
 
+    /**
+     * 处理 deleteCollection 接口请求。
+     */
     @DeleteMapping("/collections")
     public ApiResponse<Void> deleteCollection(@RequestParam(defaultValue = "video") String targetType,
                                               @RequestParam Long targetId) {
@@ -161,6 +194,9 @@ public class ClientUserController {
         return ApiResponse.success();
     }
 
+    /**
+     * 将视频实体转换为章节展示对象。
+     */
     private AppLessonVo toLessonVo(Video video) {
         AppLessonVo vo = new AppLessonVo();
         vo.setId(String.valueOf(video.getId()));
@@ -172,6 +208,9 @@ public class ClientUserController {
         return vo;
     }
 
+    /**
+     * 将秒数格式化为分钟和秒。
+     */
     private String formatDuration(Integer durationSeconds) {
         if (durationSeconds == null || durationSeconds <= 0) {
             return null;
@@ -181,6 +220,9 @@ public class ClientUserController {
         return String.format("%02d:%02d", minutes, seconds);
     }
 
+    /**
+     * 获取当前登录用户 ID，未登录时抛出业务异常。
+     */
     private Long requireUserId() {
         Long userId = UserContext.getUserId();
         if (userId == null) {

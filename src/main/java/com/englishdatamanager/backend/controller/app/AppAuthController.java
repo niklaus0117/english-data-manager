@@ -29,30 +29,45 @@ public class AppAuthController {
     private final AppAuthService appAuthService;
     private final SmsCodeService smsCodeService;
 
+    /**
+     * 处理登录请求并返回登录结果。
+     */
     @Operation(summary = "App login")
     @PostMapping("/login")
     public ApiResponse<Map<String, Object>> login(@Valid @RequestBody AppLoginRequest request) {
         return ApiResponse.success(appAuthService.login(request));
     }
 
+    /**
+     * 处理 App 一键登录请求。
+     */
     @Operation(summary = "Quick login for mobile app")
     @PostMapping("/quick-login")
     public ApiResponse<AppLoginVo> quickLogin(@Valid @RequestBody QuickLoginRequest request) {
         return ApiResponse.success(appAuthService.quickLogin(request));
     }
 
+    /**
+     * 发送 App 短信验证码。
+     */
     @Operation(summary = "Send SMS verify code")
     @PostMapping("/sms-code")
     public ApiResponse<Map<String, Object>> sendSmsCode(@Valid @RequestBody SmsCodeRequest request) {
         return ApiResponse.success(smsCodeService.sendCode(request.getMobile()));
     }
 
+    /**
+     * 处理短信验证码登录请求。
+     */
     @Operation(summary = "App login by SMS code")
     @PostMapping("/sms-login")
     public ApiResponse<Map<String, Object>> smsLogin(@Valid @RequestBody SmsLoginRequest request) {
         return ApiResponse.success(appAuthService.loginBySms(request));
     }
 
+    /**
+     * 处理退出登录请求。
+     */
     @Operation(summary = "App logout")
     @PostMapping("/logout")
     public ApiResponse<Void> logout(HttpServletRequest request) {

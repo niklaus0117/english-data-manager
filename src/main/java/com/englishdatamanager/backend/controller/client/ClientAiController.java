@@ -15,6 +15,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ClientAiController {
 
+    /**
+     * 分析用户提交的英语句子。
+     */
     @PostMapping("/analyze-sentence")
     public ApiResponse<Map<String, Object>> analyzeSentence(@RequestBody Map<String, String> request) {
         String sentence = request.getOrDefault("sentence", "");
@@ -26,6 +29,9 @@ public class ClientAiController {
         return ApiResponse.success(result);
     }
 
+    /**
+     * 处理 AI 助教对话请求。
+     */
     @PostMapping("/chat")
     public ApiResponse<Map<String, Object>> chat(@RequestBody Map<String, Object> request) {
         return ApiResponse.success(Map.of(

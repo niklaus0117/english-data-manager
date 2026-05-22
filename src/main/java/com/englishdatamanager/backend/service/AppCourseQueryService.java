@@ -43,6 +43,9 @@ public class AppCourseQueryService {
     private final VideoMediaAssetService videoMediaAssetService;
     private final VideoTranscriptSegmentService videoTranscriptSegmentService;
 
+    /**
+     * 查询 App 首页推荐课程。
+     */
     public List<AppCourseCardVo> recommendCourses() {
         return toCourseCards(videoAlbumService.lambdaQuery()
                 .eq(VideoAlbum::getStatus, 1)
@@ -53,6 +56,9 @@ public class AppCourseQueryService {
                 .list());
     }
 
+    /**
+     * 查询每日听读分类列表。
+     */
     public List<AppCourseCategoryVo> dailyReadingCategories() {
         return categoryService.lambdaQuery()
                 .eq(Category::getStatus, 1)
@@ -64,6 +70,9 @@ public class AppCourseQueryService {
                 .toList();
     }
 
+    /**
+     * 按分类查询每日听读课程。
+     */
     public List<AppCourseCardVo> dailyReadingCourses(Long categoryId) {
         return toCourseCards(videoAlbumService.lambdaQuery()
                 .eq(VideoAlbum::getStatus, 1)
@@ -74,11 +83,15 @@ public class AppCourseQueryService {
                 .list());
     }
 
+    /**
+     * 按条件查询 App 课程列表。
+     */
     public List<AppCourseCardVo> courseList(Long categoryId, Boolean isVip, Integer limit) {
         int resolvedLimit = limit == null || limit <= 0 ? 10 : Math.min(limit, 100);
         return toCourseCards(videoAlbumService.lambdaQuery()
                 .eq(VideoAlbum::getStatus, 1)
                 .eq(categoryId != null, VideoAlbum::getCategoryId, categoryId)
+                // VIP 课程包含显式 VIP 标记和付费课程，便于前端用同一筛选条件展示。
                 .and(Boolean.TRUE.equals(isVip),
                         wrapper -> wrapper.eq(VideoAlbum::getAccessType, "vip").or().gt(VideoAlbum::getPrice, BigDecimal.ZERO))
                 .and(Boolean.FALSE.equals(isVip),
@@ -90,6 +103,9 @@ public class AppCourseQueryService {
                 .list());
     }
 
+    /**
+     * 查询当前用户已购课程列表。
+     */
     public List<AppCourseCardVo> purchasedCourses() {
         Long userId = requireUserId();
         List<Long> courseIds = userCourseAccessService.lambdaQuery()
@@ -106,9 +122,13 @@ public class AppCourseQueryService {
         return toCourseCards(videoAlbumService.listByIds(courseIds));
     }
 
+    /**
+     * 查询课程详情和章节信息。
+     */
     public AppCourseDetailVo courseDetail(Long courseId) {
         VideoAlbum album = getCourse(courseId);
         Long userId = UserContext.getUserId();
+        // 课程详情允许游客查看，但学习权限需要结合登录状态、免费课、VIP 和已购记录计算。
         boolean canLearn = userCourseAccessService.hasAccess(userId, album);
         List<AppLessonVo> lessons = courseLessons(courseId);
 
@@ -121,6 +141,9 @@ public class AppCourseQueryService {
         return result;
     }
 
+    /**
+     * 查询课程章节并补充学习状态。
+     */
     public List<AppLessonVo> courseLessons(Long courseId) {
         VideoAlbum album = getCourse(courseId);
         List<VideoAlbumItem> items = videoAlbumItemService.lambdaQuery()
@@ -129,6 +152,7 @@ public class AppCourseQueryService {
                 .orderByAsc(VideoAlbumItem::getId)
                 .list();
         List<Long> lessonIds = items.stream().map(VideoAlbumItem::getVideoId).filter(Objects::nonNull).toList();
+        // 一次性加载章节、收藏、下载、播放记录，避免对每个章节循环查库。
         Map<Long, Video> videoMap = lessonIds.isEmpty()
                 ? Map.of()
                 : videoService.listByIds(lessonIds).stream().collect(Collectors.toMap(Video::getId, Function.identity()));
@@ -160,6 +184,9 @@ public class AppCourseQueryService {
                 .toList();
     }
 
+    /**
+     * 查询章节播放页数据。
+     */
     public AppLessonPlayerVo lessonPlayer(Long courseId, Long lessonId) {
         VideoAlbum album = getCourse(courseId);
         Long userId = requireUserId();
@@ -167,6 +194,7 @@ public class AppCourseQueryService {
             throw new BusinessException("当前课程未购买或无权限学习");
         }
         Video lesson = getCourseLesson(courseId, lessonId);
+        // 播放页聚合媒体资源、脚本、播放进度和用户状态，前端可直接渲染播放器。
         List<VideoTranscriptSegment> segments = videoTranscriptSegmentService.lambdaQuery()
                 .eq(VideoTranscriptSegment::getVideoId, lessonId)
                 .orderByAsc(VideoTranscriptSegment::getSortNo)
@@ -208,9 +236,13 @@ public class AppCourseQueryService {
         return result;
     }
 
+    /**
+     * 根据章节 ID 查询播放器数据。
+     */
     public AppLessonPlayerVo lessonPlayerByLesson(Long lessonId) {
         VideoAlbumItem albumItem = videoAlbumItemService.lambdaQuery()
                 .eq(VideoAlbumItem::getVideoId, lessonId)
+                // 一个章节可能被多个专辑引用，默认专辑优先用于反查课程。
                 .orderByDesc(VideoAlbumItem::getIsDefaultAlbum)
                 .orderByAsc(VideoAlbumItem::getSortNo)
                 .last("limit 1")
@@ -221,6 +253,9 @@ public class AppCourseQueryService {
         return lessonPlayer(albumItem.getAlbumId(), lessonId);
     }
 
+    /**
+     * 查询章节逐句脚本。
+     */
     public List<AppLessonSentenceVo> lessonTranscript(Long lessonId) {
         Video lesson = videoService.getById(lessonId);
         if (lesson == null || lesson.getPublishStatus() == null || lesson.getPublishStatus() != 1) {
@@ -236,10 +271,16 @@ public class AppCourseQueryService {
                 .toList();
     }
 
+    /**
+     * 批量转换课程卡片展示对象。
+     */
     private List<AppCourseCardVo> toCourseCards(List<VideoAlbum> albums) {
         return albums.stream().map(this::toCourseCard).toList();
     }
 
+    /**
+     * 将课程专辑转换为课程卡片展示对象。
+     */
     private AppCourseCardVo toCourseCard(VideoAlbum album) {
         Long userId = UserContext.getUserId();
         AppCourseCardVo vo = new AppCourseCardVo();
@@ -259,6 +300,9 @@ public class AppCourseQueryService {
         return vo;
     }
 
+    /**
+     * 将分类实体转换为 App 分类对象。
+     */
     private AppCourseCategoryVo toCategoryVo(Category category) {
         AppCourseCategoryVo vo = new AppCourseCategoryVo();
         vo.setId(String.valueOf(category.getId()));
@@ -267,6 +311,9 @@ public class AppCourseQueryService {
         return vo;
     }
 
+    /**
+     * 将视频实体转换为章节展示对象。
+     */
     private AppLessonVo toLessonVo(Video video,
                                    Set<Long> favoriteIds,
                                    Set<Long> downloadedIds,
@@ -285,6 +332,9 @@ public class AppCourseQueryService {
         return vo;
     }
 
+    /**
+     * 将脚本片段转换为播放页句子对象。
+     */
     private AppLessonSentenceVo toSentenceVo(VideoTranscriptSegment segment) {
         AppLessonSentenceVo vo = new AppLessonSentenceVo();
         vo.setId(String.valueOf(segment.getId()));
@@ -297,6 +347,9 @@ public class AppCourseQueryService {
         return vo;
     }
 
+    /**
+     * 拆分课程标签字符串。
+     */
     private List<String> splitTags(String tags) {
         if (tags == null || tags.isBlank()) {
             return List.of();
@@ -307,11 +360,17 @@ public class AppCourseQueryService {
                 .toList();
     }
 
+    /**
+     * 判断课程是否属于 VIP 或付费课程。
+     */
     private boolean isVipCourse(VideoAlbum album) {
         return "vip".equalsIgnoreCase(album.getAccessType())
                 || (album.getPrice() != null && album.getPrice().signum() > 0);
     }
 
+    /**
+     * 将秒数格式化为分钟和秒。
+     */
     private String formatDuration(Integer durationSeconds) {
         if (durationSeconds == null || durationSeconds <= 0) {
             return null;
@@ -321,6 +380,9 @@ public class AppCourseQueryService {
         return String.format("%02d:%02d", minutes, seconds);
     }
 
+    /**
+     * 获取当前登录用户 ID，未登录时抛出业务异常。
+     */
     private Long requireUserId() {
         Long userId = UserContext.getUserId();
         if (userId == null) {
@@ -329,6 +391,9 @@ public class AppCourseQueryService {
         return userId;
     }
 
+    /**
+     * 查询并校验课程是否可用。
+     */
     private VideoAlbum getCourse(Long courseId) {
         VideoAlbum album = videoAlbumService.getById(courseId);
         if (album == null || album.getStatus() == null || album.getStatus() != 1) {
@@ -337,7 +402,11 @@ public class AppCourseQueryService {
         return album;
     }
 
+    /**
+     * 查询并校验课程章节是否可用。
+     */
     private Video getCourseLesson(Long courseId, Long lessonId) {
+        // 先验证章节归属，再读取章节本身，防止越权访问其他课程下的视频。
         boolean exists = videoAlbumItemService.lambdaQuery()
                 .eq(VideoAlbumItem::getAlbumId, courseId)
                 .eq(VideoAlbumItem::getVideoId, lessonId)

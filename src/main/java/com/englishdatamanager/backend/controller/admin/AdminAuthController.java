@@ -25,18 +25,27 @@ public class AdminAuthController {
 
     private final AdminAuthService adminAuthService;
 
+    /**
+     * 处理登录请求并返回登录结果。
+     */
     @Operation(summary = "Admin login")
     @PostMapping("/login")
     public ApiResponse<Map<String, Object>> login(@Valid @RequestBody AdminLoginRequest request) {
         return ApiResponse.success(adminAuthService.login(request));
     }
 
+    /**
+     * 查询当前登录用户信息。
+     */
     @Operation(summary = "Current admin profile and permissions")
     @GetMapping("/me")
     public ApiResponse<Map<String, Object>> me() {
         return ApiResponse.success(adminAuthService.currentProfile(UserContext.getUserId()));
     }
 
+    /**
+     * 处理退出登录请求。
+     */
     @Operation(summary = "Admin logout")
     @PostMapping("/logout")
     public ApiResponse<Void> logout(HttpServletRequest request) {

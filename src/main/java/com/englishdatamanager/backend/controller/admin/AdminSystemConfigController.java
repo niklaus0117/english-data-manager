@@ -15,6 +15,9 @@ public class AdminSystemConfigController {
 
     private final SystemConfigService systemConfigService;
 
+    /**
+     * 查询数据列表。
+     */
     @GetMapping
     public ApiResponse<List<SystemConfig>> list(@RequestParam(required = false) String configGroup) {
         return ApiResponse.success(systemConfigService.lambdaQuery()
@@ -23,12 +26,18 @@ public class AdminSystemConfigController {
                 .list());
     }
 
+    /**
+     * 创建一条业务数据。
+     */
     @PostMapping
     public ApiResponse<Void> create(@RequestBody SystemConfig systemConfig) {
         systemConfigService.save(systemConfig);
         return ApiResponse.success();
     }
 
+    /**
+     * 更新指定业务数据。
+     */
     @PutMapping("/{id}")
     public ApiResponse<Void> update(@PathVariable Long id, @RequestBody SystemConfig systemConfig) {
         systemConfig.setId(id);
@@ -36,6 +45,9 @@ public class AdminSystemConfigController {
         return ApiResponse.success();
     }
 
+    /**
+     * 删除指定业务数据。
+     */
     @DeleteMapping("/{id}")
     public ApiResponse<Void> delete(@PathVariable Long id) {
         systemConfigService.removeById(id);

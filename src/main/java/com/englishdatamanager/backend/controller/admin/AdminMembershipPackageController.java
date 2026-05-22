@@ -18,6 +18,9 @@ public class AdminMembershipPackageController {
 
     private final MembershipPackageService membershipPackageService;
 
+    /**
+     * 查询数据列表。
+     */
     @Operation(summary = "Package list")
     @GetMapping
     public ApiResponse<List<MembershipPackage>> list() {
@@ -27,12 +30,18 @@ public class AdminMembershipPackageController {
                 .list());
     }
 
+    /**
+     * 查询数据详情。
+     */
     @Operation(summary = "Package detail")
     @GetMapping("/{id}")
     public ApiResponse<MembershipPackage> detail(@PathVariable Long id) {
         return ApiResponse.success(membershipPackageService.getById(id));
     }
 
+    /**
+     * 创建一条业务数据。
+     */
     @Operation(summary = "Create package")
     @PostMapping
     public ApiResponse<Void> create(@RequestBody MembershipPackage membershipPackage) {
@@ -40,6 +49,9 @@ public class AdminMembershipPackageController {
         return ApiResponse.success();
     }
 
+    /**
+     * 更新指定业务数据。
+     */
     @Operation(summary = "Update package")
     @PutMapping("/{id}")
     public ApiResponse<Void> update(@PathVariable Long id, @RequestBody MembershipPackage membershipPackage) {
@@ -48,6 +60,9 @@ public class AdminMembershipPackageController {
         return ApiResponse.success();
     }
 
+    /**
+     * 删除指定业务数据。
+     */
     @Operation(summary = "Delete package")
     @DeleteMapping("/{id}")
     public ApiResponse<Void> delete(@PathVariable Long id) {

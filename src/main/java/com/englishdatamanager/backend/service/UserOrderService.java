@@ -26,6 +26,9 @@ public class UserOrderService extends ServiceImpl<UserOrderMapper, UserOrder> {
     private final MembershipPackageService membershipPackageService;
     private final VideoAlbumService videoAlbumService;
 
+    /**
+     * 创建会员套餐订单。
+     */
     public Map<String, Object> createMembershipOrder(Long userId, Long packageId) {
         MembershipPackage membershipPackage = membershipPackageService.getById(packageId);
         if (membershipPackage == null || membershipPackage.getStatus() == null || membershipPackage.getStatus() != 1) {
@@ -51,6 +54,9 @@ public class UserOrderService extends ServiceImpl<UserOrderMapper, UserOrder> {
         return result;
     }
 
+    /**
+     * 处理订单支付成功后的业务状态变更。
+     */
     public void handlePaymentSuccess(String orderNo, String transactionNo, String payChannel, BigDecimal amount) {
         UserOrder order = lambdaQuery()
                 .eq(UserOrder::getOrderNo, orderNo)
@@ -58,10 +64,12 @@ public class UserOrderService extends ServiceImpl<UserOrderMapper, UserOrder> {
         if (order == null) {
             throw new BusinessException("订单不存在");
         }
+        // 支付金额必须和下单金额一致，避免伪造回调用低金额完成高价订单。
         if (amount != null && order.getAmount() != null && order.getAmount().compareTo(amount) != 0) {
             throw new BusinessException("支付金额不匹配");
         }
         if (order.getPayStatus() != null && order.getPayStatus() == 1) {
+            // 支付平台可能重复通知，已支付订单直接返回，保证回调幂等。
             return;
         }
         order.setPayStatus(1);
@@ -76,6 +84,7 @@ public class UserOrderService extends ServiceImpl<UserOrderMapper, UserOrder> {
                     ? null
                     : membershipPackageService.getById(order.getPackageId());
             if (appUser != null) {
+                // 会员未过期时从原到期时间顺延，已过期则从当前时间重新计算。
                 LocalDateTime baseTime = appUser.getVipExpireAt() != null && appUser.getVipExpireAt().isAfter(LocalDateTime.now())
                         ? appUser.getVipExpireAt()
                         : LocalDateTime.now();
@@ -89,6 +98,9 @@ public class UserOrderService extends ServiceImpl<UserOrderMapper, UserOrder> {
         }
     }
 
+    /**
+     * 创建课程购买订单。
+     */
     public Map<String, Object> createCourseOrder(Long userId, Long courseId) {
         VideoAlbum course = videoAlbumService.getById(courseId);
         if (course == null || course.getStatus() == null || course.getStatus() != 1) {
@@ -102,6 +114,7 @@ public class UserOrderService extends ServiceImpl<UserOrderMapper, UserOrder> {
         order.setOrderType("COURSE_PURCHASE");
         order.setAmount(course.getPrice() == null ? BigDecimal.ZERO : course.getPrice());
         order.setCurrency("CNY");
+        // 课程购买当前使用 demo 支付，创建订单后立即标记为已支付。
         order.setPayStatus(1);
         order.setPayChannel("demo");
         order.setTransactionNo("COURSE-" + order.getOrderNo());
@@ -117,6 +130,9 @@ public class UserOrderService extends ServiceImpl<UserOrderMapper, UserOrder> {
         return result;
     }
 
+    /**
+     * 生成业务订单号。
+     */
     private String generateOrderNo() {
         String timePart = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
         int randomPart = ThreadLocalRandom.current().nextInt(1000, 9999);

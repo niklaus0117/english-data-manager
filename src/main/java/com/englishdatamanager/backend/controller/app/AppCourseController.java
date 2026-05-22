@@ -39,41 +39,65 @@ public class AppCourseController {
     private final UserDownloadRecordService userDownloadRecordService;
     private final VideoService videoService;
 
+    /**
+     * 查询推荐课程列表。
+     */
     @GetMapping("/recommend")
     public ApiResponse<List<AppCourseCardVo>> recommend() {
         return ApiResponse.success(appCourseQueryService.recommendCourses());
     }
 
+    /**
+     * 查询每日听读分类列表。
+     */
     @GetMapping("/daily-reading/categories")
     public ApiResponse<List<AppCourseCategoryVo>> dailyReadingCategories() {
         return ApiResponse.success(appCourseQueryService.dailyReadingCategories());
     }
 
+    /**
+     * 按分类查询每日听读课程。
+     */
     @GetMapping("/daily-reading")
     public ApiResponse<List<AppCourseCardVo>> dailyReadingCourses(@RequestParam(required = false) Long categoryId) {
         return ApiResponse.success(appCourseQueryService.dailyReadingCourses(categoryId));
     }
 
+    /**
+     * 查询当前用户已购课程。
+     */
     @GetMapping("/purchased")
     public ApiResponse<List<AppCourseCardVo>> purchased() {
         return ApiResponse.success(appCourseQueryService.purchasedCourses());
     }
 
+    /**
+     * 查询数据详情。
+     */
     @GetMapping("/{courseId}")
     public ApiResponse<AppCourseDetailVo> detail(@PathVariable Long courseId) {
         return ApiResponse.success(appCourseQueryService.courseDetail(courseId));
     }
 
+    /**
+     * 查询课程下的章节列表。
+     */
     @GetMapping("/{courseId}/lessons")
     public ApiResponse<List<AppLessonVo>> lessons(@PathVariable Long courseId) {
         return ApiResponse.success(appCourseQueryService.courseLessons(courseId));
     }
 
+    /**
+     * 查询章节播放页数据。
+     */
     @GetMapping("/{courseId}/lessons/{lessonId}/player")
     public ApiResponse<AppLessonPlayerVo> lessonPlayer(@PathVariable Long courseId, @PathVariable Long lessonId) {
         return ApiResponse.success(appCourseQueryService.lessonPlayer(courseId, lessonId));
     }
 
+    /**
+     * 购买课程并授予课程访问权限。
+     */
     @PostMapping("/{courseId}/purchase")
     public ApiResponse<Void> purchase(@PathVariable Long courseId) {
         if (videoAlbumService.getById(courseId) == null) {
@@ -84,6 +108,9 @@ public class AppCourseController {
         return ApiResponse.success();
     }
 
+    /**
+     * 收藏指定课程章节。
+     */
     @PostMapping("/{courseId}/lessons/{lessonId}/favorite")
     public ApiResponse<Void> favoriteLesson(@PathVariable Long courseId, @PathVariable Long lessonId) {
         ensureLessonExists(courseId, lessonId);
@@ -91,6 +118,9 @@ public class AppCourseController {
         return ApiResponse.success();
     }
 
+    /**
+     * 取消收藏指定课程章节。
+     */
     @DeleteMapping("/{courseId}/lessons/{lessonId}/favorite")
     public ApiResponse<Void> unfavoriteLesson(@PathVariable Long courseId, @PathVariable Long lessonId) {
         ensureLessonExists(courseId, lessonId);
@@ -98,6 +128,9 @@ public class AppCourseController {
         return ApiResponse.success();
     }
 
+    /**
+     * 标记指定课程章节已下载。
+     */
     @PostMapping("/{courseId}/lessons/{lessonId}/download")
     public ApiResponse<Void> downloadLesson(@PathVariable Long courseId, @PathVariable Long lessonId) {
         ensureLessonExists(courseId, lessonId);
@@ -111,6 +144,9 @@ public class AppCourseController {
         return ApiResponse.success();
     }
 
+    /**
+     * 校验课程与章节的归属关系。
+     */
     private void ensureLessonExists(Long courseId, Long lessonId) {
         boolean exists = videoAlbumService.getById(courseId) != null
                 && videoService.getById(lessonId) != null;

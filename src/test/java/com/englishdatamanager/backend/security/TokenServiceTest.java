@@ -19,6 +19,9 @@ import static org.mockito.Mockito.when;
 
 class TokenServiceTest {
 
+    /**
+     * 验证 Redis 不可用时 token 服务会回退到本地缓存。
+     */
     @Test
     void shouldFallbackToLocalStoreWhenRedisUnavailable() {
         StringRedisTemplate stringRedisTemplate = mock(StringRedisTemplate.class);

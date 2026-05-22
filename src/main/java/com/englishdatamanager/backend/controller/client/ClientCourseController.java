@@ -26,6 +26,9 @@ public class ClientCourseController {
     private final AppCourseQueryService appCourseQueryService;
     private final VideoService videoService;
 
+    /**
+     * 查询数据列表。
+     */
     @GetMapping
     public ApiResponse<List<AppCourseCardVo>> list(@RequestParam(required = false) Long categoryId,
                                                    @RequestParam(required = false) Boolean isVip,
@@ -34,16 +37,25 @@ public class ClientCourseController {
         return ApiResponse.success(courses);
     }
 
+    /**
+     * 查询数据详情。
+     */
     @GetMapping("/{id}")
     public ApiResponse<AppCourseDetailVo> detail(@PathVariable Long id) {
         return ApiResponse.success(appCourseQueryService.courseDetail(id));
     }
 
+    /**
+     * 查询课程下的章节列表。
+     */
     @GetMapping("/{id}/lessons")
     public ApiResponse<List<AppLessonVo>> lessons(@PathVariable Long id) {
         return ApiResponse.success(appCourseQueryService.courseLessons(id));
     }
 
+    /**
+     * 处理 videos 接口请求。
+     */
     @GetMapping("/videos")
     public ApiResponse<PageResponse<Video>> videos(@RequestParam(defaultValue = "1") long current,
                                                    @RequestParam(defaultValue = "10") long size,
